@@ -8,40 +8,45 @@
 
 namespace BS32
 {
-#pragma region Instructions
-	namespace INST
+#pragma region Instruction
+	/* DEFAULTS: 0, 0, 0 */
+	Instruction::Instruction(OP::opcode_t op,
+		byte a, byte b)
 	{
-		Instruction mkInstruction(byte op, byte a, byte b)
-		{
-			Instruction i = { op, a, b };
-			return i;
-		}
-		byte getOpCode(Instruction i)
-		{
-			return i.opcode;
-		}
-		byte getArgA(Instruction i)
-		{
-			return i.argA;
-		}
-		byte getArgB(Instruction i)
-		{
-			return i.argB;
-		}
-		word getArgAx(Instruction i)
-		{
-			return (word)((i.argA << 0x8) + i.argB);
-		}
-		short getArguAx(Instruction i)
-		{
-			return (short)((i.argA << 0x8) + i.argB);
-		}
+		this->opcode = op;
+		this->argA = a;
+		this->argB = b;
 	}
+	Instruction::~Instruction()
+	{
+	}
+#pragma region Methods
+	OP::opcode_t Instruction::OpCode() const
+	{
+		return this->opcode;
+	}
+	byte Instruction::ArgA() const
+	{
+		return this->argA;
+	}
+	byte Instruction::ArgB() const
+	{
+		return this->argB;
+	}
+	short Instruction::ArgAx() const
+	{
+		return (short)((argA << 0x8) + argB);
+	}
+	word Instruction::ArguAx() const
+	{
+		return (word)((argA << 0x8) + argB);
+	}
+#pragma endregion
 #pragma endregion
 #pragma region Interpreter
 	/* The interpreter is responsible for parsing
 		assembler code into bytecode */
-#pragma region Interpreter Functions
+#pragma region Static Functions
 	static std::vector<std::string> Normalize(std::string line)
 	{
 		std::string arg;
@@ -61,61 +66,59 @@ namespace BS32
 		}
 		return out;
 	}
-	static bool IsLetter(char c)
+	static bool isLetter(char c)
 	{
 		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 	}
-	static bool IsDigit(char c)
+	static bool isDigit(char c)
 	{
 		return c >= '0' && c <= '9';
 	}
-	static bool IsLetterOrDigit(char c)
+	static bool isLetterOrDigit(char c)
 	{
-		return IsLetter(c) || IsDigit(c);
+		return isLetter(c) || isDigit(c);
 	}
-	static char ToUpper(char c)
+	static char toUpper(char c)
 	{
 		if (c >= 'A' && c <= 'Z')
 			return c;
 		return c + 'A' - 'a';
 	}
-	static byte ParseByte(std::string str)
+	static byte byteParse(std::string str,
+		bool isHex = false)
 	{
+		/* TODO: IMPLEMENT MAX */
 		byte val = 0;
-		bool hex = false;
 		for (uint i = 0; i < str.length(); i++)
 		{
-			if (str[i] == '$')
-				hex = true;
-			else if (IsLetterOrDigit(str[i]))
-				val = val * 10 + (IsDigit(str[i]) ?
-					str[i] - '0'
-					: ToUpper(str[i]) - 'A');
+			char c = str[i];
+			if (isHex)
+				val = val * 16 + ((c >= '0' && val <= '9')
+					? (c - '0')
+					: (10 + (c - 'A')));
+			else
+				val = val * 10 + (c - '0');
 		}
 		return val;
 	}
-	static word ParseWord(std::string str)
+	static word wordParse(std::string str,
+		bool isHex = false)
 	{
+		/* TODO: IMPLEMENT MAX */
+		word val = 0;
+		for (uint i = 0; i < str.length(); i++)
+		{
+			char c = str[i];
+			if (isHex)
+				val = val * 16 + ((c <= '0' && c >= '9')
+					? (c - '0')
+					: (10 + (c - 'A')));
+			else
+				val = val * 10 + (c - '0');
+		}
+		return val;
+	}
 
-	}
-	static void InterpretLDA(BufferWriter out,
-		byte val)
-	{
-		out.WriteByte(OP::OP_LDA);
-		out.WriteByte(val);
-	}
-	static void InterpretLDX(BufferWriter out,
-		word val)
-	{
-		out.WriteByte(OP::OP_LDX);
-		out.WriteByte(val);
-	}
-	static void InterpretSTA(BufferWriter out,
-		REG::register_t r)
-	{
-		out.WriteByte(OP::OP_STA);
-		out.WriteByte(r);
-	}
 #pragma endregion
 
 	Interpreter::Interpreter()

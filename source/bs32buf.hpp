@@ -33,12 +33,12 @@ namespace BS32
 
 		void WriteByte(byte);
 		void WriteWord(word);
-		void WriteInstruction(INST::Instruction);
+		void WriteInstruction(Instruction);
 		void WriteInt(int);
 
 		void WriteByteAt(uint, byte);
 		void WriteWordAt(uint, word);
-		void WriteInstructionAt(uint, INST::Instruction);
+		void WriteInstructionAt(uint, Instruction);
 		void WriteIntAt(uint, int);
 		
 		void WriteToFile(std::string);

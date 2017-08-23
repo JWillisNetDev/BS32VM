@@ -34,23 +34,8 @@ namespace BS32
 	
 	const int BS32_SHORT_MAX = (~(word)0);
 	const int BS32_MAX_MEM = BS32_SHORT_MAX;
+	const int BS32_INSTRUCTION_SIZE = 3;
 
-	namespace INST
-	{
-		struct Instruction
-		{
-			byte opcode;
-			byte argA;
-			byte argB;
-		};
-		Instruction mkInstruction(byte = 0,
-			byte = 0, byte = 0);
-		byte getOpCode(Instruction);
-		byte getArgA(Instruction);
-		byte getArgB(Instruction);
-		word getArgAx(Instruction);
-		short getArguAx(Instruction);
-	}
 
 	namespace OP
 	{
@@ -74,15 +59,22 @@ namespace BS32
 			REG_X = 0x10, REG_Y
 		};
 	}
-	namespace VM
+	struct Instruction
 	{
-		enum register_t : byte
-		{
-			REG_NULL = 0x00,
-			REG_A = 0x10, REG_B, REG_Ax,
-			REG_X = 0x20, REG_Y
-		};
-	}
+		OP::opcode_t opcode;
+		byte argA, argB;
+
+		/* Constructors */
+		Instruction(OP::opcode_t = OP::OP_NULL,
+			byte = 0, byte = 0);
+		~Instruction();
+		/* Methods */
+		OP::opcode_t OpCode() const;
+		byte ArgA() const;
+		byte ArgB() const;
+		short ArgAx() const;
+		word ArguAx() const;
+	};
 	class Interpreter
 	{
 	public:

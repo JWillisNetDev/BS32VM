@@ -47,6 +47,10 @@ namespace BS32
 		this->buffer.push_back(val & 0x00FF);
 		this->buffer.push_back((val & 0xFF00) >> 0x8);
 	}
+	void BufferWriter::WriteInstruction(Instruction i)
+	{
+
+	}
 	void BufferWriter::WriteInt(int val)
 	{
 		this->buffer.push_back(val & 0x000000FF);
@@ -63,6 +67,11 @@ namespace BS32
 	{
 		this->buffer[loc] = val & 0x00FF;
 		this->buffer[loc + 1] = (val & 0xFF00) >> 0x8;
+	}
+	void BufferWriter::WriteInstructionAt(uint loc,
+		Instruction i)
+	{
+
 	}
 	void BufferWriter::WriteIntAt(uint loc, int val)
 	{
